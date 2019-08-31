@@ -3,17 +3,16 @@ import ReactDOM from 'react-dom'
 
 const Button = (props) => {
   return (
-    <div>
-      <button onClick={props.handleEvent}> {props.text} </button>
-    </div>
+    <button onClick={props.handleEvent}> {props.text} </button>
   )
 }
 
 const Statistic = (props) => {
   return (
-    <div>
-      <p>{props.text} {props.value} {props.unit}</p>
-    </div>
+    <tr>
+      <td>{props.text}</td>
+      <td>{props.value} {props.unit}</td>
+    </tr>
   )
 }
 
@@ -34,12 +33,16 @@ const Statistics = ({good,neutral,bad}) => {
   return (
     <div>
       <h1> statistics </h1>
-      <Statistic text="good" value={good}/>
-      <Statistic text="neutral" value={neutral}/>
-      <Statistic text="bad" value={bad}/>
-      <Statistic text="all" value={all}/>
-      <Statistic text="average" value={average}/>
-      <Statistic text="positive" value={positive} unit={"%"}/>
+      <table>
+        <tbody>
+          <Statistic text="good" value={good}/>
+          <Statistic text="neutral" value={neutral}/>
+          <Statistic text="bad" value={bad}/>
+          <Statistic text="all" value={all}/>
+          <Statistic text="average" value={average}/>
+          <Statistic text="positive" value={positive} unit={"%"}/>
+        </tbody>
+      </table>
     </div>
   )
 }
