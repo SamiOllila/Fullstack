@@ -20,9 +20,8 @@ const Part = (props) => {
 }
 
 const Content = ({ parts }) => {
-  const partsRender = parts.map(part => {
-    return <Part key={part.id} part={part.name} exercises={part.exercises} />
-  })
+  const partsRender = parts.map(part => <Part key={part.id} part={part.name} exercises={part.exercises} />)
+
   return (
     <div>
       {partsRender}
@@ -30,9 +29,9 @@ const Content = ({ parts }) => {
   )
 }
 
-const Total = (props) => {
-  const parts = props.parts
-  const total = parts[0].exercises + parts[1].exercises + parts[2].exercises
+const Total = ({ parts }) => {
+  const total = parts.reduce((sum,cur) => sum + cur.exercises, 0)
+ 
   return (
     <div>
       <p>Number of exercises {total}</p>
@@ -72,7 +71,7 @@ const App = () => {
       },
       {
         name: 'State of a container',
-        exercises: 6,
+        exercises: 4,
         id: 4
       }
     ]
