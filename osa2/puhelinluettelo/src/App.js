@@ -16,6 +16,10 @@ const App = () => {
   const addName = (event) => {
     event.preventDefault()
     const nameObject = { name: newName}
+    const storedNames = persons.map(onlyName => onlyName.name)
+    if (storedNames.includes(nameObject.name)) {
+      return (window.alert(`${nameObject.name} is already added to phonebook.`))
+    }
     setPersons(persons.concat(nameObject))
     setNewName('')
   }
