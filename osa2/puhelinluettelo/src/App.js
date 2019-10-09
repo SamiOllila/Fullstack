@@ -12,12 +12,13 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
 
+  const getPersonsFromApi = async () => {
+    const response = await axios.get('http://localhost:3001/persons')
+    setPersons(response.data)
+  }
+
   useEffect(() => {
-    axios
-    .get('http://localhost:3001/persons')
-    .then(response => {
-      setPersons(response.data
-    )})
+    getPersonsFromApi()
   }, [])
 
 
