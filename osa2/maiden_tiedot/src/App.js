@@ -28,6 +28,10 @@ const App = () => {
     setInput(event.target.value)
   }
 
+  const handleClick = (country) => {
+    filter(country)
+  }
+
   const filter = (searchString) => {
     const allFilteredCountries = countries.filter(country => country.name.toUpperCase().includes(searchString.toUpperCase()))
     setFilteredCountries(allFilteredCountries)
@@ -58,7 +62,10 @@ const App = () => {
           filteredCountries.length === 1 ? <SingleCountry country={filteredCountries[0]} /> :
             <ul>
               {filteredCountries.map(country => (<li key={country.name}>
-                {country.name}
+                {country.name} 
+                <button onClick={() => handleClick(country.name)} size="sm">
+                  show
+                </button>
               </li>
               ))}
             </ul>}
