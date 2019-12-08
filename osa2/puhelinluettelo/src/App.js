@@ -47,6 +47,12 @@ const App = () => {
     setPersons(persons.concat(nameObject))
     setNewName('')
     setNewNumber('')
+
+    axios
+    .post('http://localhost:3001/persons', nameObject)
+    .then(response => {
+      console.log(response)
+    })
   }
 
   const filteredPersons = persons.filter(person => person.name.toUpperCase().includes(filterInput.toUpperCase()))
