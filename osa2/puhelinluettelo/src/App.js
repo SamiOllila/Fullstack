@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import NameServices from './services/names'
 
 
 const App = () => {
@@ -12,9 +12,10 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
 
-  const getPersonsFromApi = async () => {
-    const response = await axios.get('http://localhost:3001/persons')
-    setPersons(response.data)
+  const getPersonsFromApi = () => {
+    NameServices
+      .getAll()
+      .then(response => {setPersons(response.data)})
   }
 
   useEffect(() => {
@@ -47,6 +48,12 @@ const App = () => {
     setPersons(persons.concat(nameObject))
     setNewName('')
     setNewNumber('')
+
+    NameServices
+      .addName(nameObject)
+      .then(response => {
+        console.log(response)
+      })
   }
 
   const filteredPersons = persons.filter(person => person.name.toUpperCase().includes(filterInput.toUpperCase()))
