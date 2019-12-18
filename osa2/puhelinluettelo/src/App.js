@@ -7,7 +7,7 @@ import NameServices from './services/names'
 
 const App = () => {
   const [persons, setPersons] = useState([])
-  console.log(persons)
+  
   const [ filterInput, setFilterInput ] = useState('')
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
@@ -36,8 +36,6 @@ const App = () => {
   }
 
   const handleDeleteClick = (person) => {
-    console.log("moi")
-    console.log(person)
     if (!window.confirm(`Delete ${person.name}?`)) return
 
     const newPersons = persons.filter(p => p.id !== person.id)
@@ -45,11 +43,7 @@ const App = () => {
     NameServices
       .deletePerson(person.id)
       .then(response => {
-        console.log(response)
-
         getPersonsFromApi()
-
-
       }).catch(error => getPersonsFromApi())
   }
 
@@ -61,7 +55,19 @@ const App = () => {
     }
     const storedNames = persons.map(onlyName => onlyName.name)
     if (storedNames.includes(nameObject.name)) {
-      return (window.alert(`${nameObject.name} is already added to phonebook.`))
+      if (window.confirm(`${nameObject.name} is already added to phonebook. Replace the old number with new one?`)) {
+        const updatedPerson = {
+          name: newName,
+          number: newNumber,
+          id: persons.filter(p => p.name === nameObject.name)[0].id,
+        }
+        setNewName('')
+        setNewNumber('')
+        NameServices
+          .updateName(updatedPerson)
+          .then(response => getPersonsFromApi())
+        return
+      }
     }
     setPersons(persons.concat(nameObject))
     setNewName('')
@@ -70,7 +76,6 @@ const App = () => {
     NameServices
       .addName(nameObject)
       .then(response => {
-        console.log(response)
         getPersonsFromApi()
       })
   }
