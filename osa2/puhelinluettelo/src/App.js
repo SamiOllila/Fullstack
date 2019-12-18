@@ -7,7 +7,7 @@ import NameServices from './services/names'
 
 const App = () => {
   const [persons, setPersons] = useState([])
-
+  console.log(persons)
   const [ filterInput, setFilterInput ] = useState('')
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
@@ -35,6 +35,24 @@ const App = () => {
     setNewNumber(event.target.value)
   }
 
+  const handleDeleteClick = (person) => {
+    console.log("moi")
+    console.log(person)
+    if (!window.confirm(`Delete ${person.name}?`)) return
+
+    const newPersons = persons.filter(p => p.id !== person.id)
+    setPersons(newPersons)
+    NameServices
+      .deletePerson(person.id)
+      .then(response => {
+        console.log(response)
+
+        getPersonsFromApi()
+
+
+      }).catch(error => getPersonsFromApi())
+  }
+
   const addName = (event) => {
     event.preventDefault()
     const nameObject = { 
@@ -53,6 +71,7 @@ const App = () => {
       .addName(nameObject)
       .then(response => {
         console.log(response)
+        getPersonsFromApi()
       })
   }
 
@@ -65,7 +84,7 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm addName={addName} newName={newName} newNumber={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Persons persons={filteredPersons} />
+      <Persons persons={filteredPersons} handleDeleteClick={handleDeleteClick} />
     </div>
   )
 

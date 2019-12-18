@@ -1,18 +1,25 @@
 import React from 'react'
 
 
-const Person = (props) => {
+const Person = ({ person,handleDeleteClick }) => {
+  const { name, number } = person
   return (
-    <p>{props.name} {props.number}</p>
+      <div>
+        <p>{name} {number}</p>
+        <button onClick={() => {handleDeleteClick(person)}} size="sm" >
+            delete
+        </button>
+      </div>
     )
 }
 
-const Persons = ({ persons }) => {
-  const names = persons.map(person => <Person key={person.name} name={person.name} number={person.number} />)
+const Persons = ({ persons,handleDeleteClick }) => {
 
   return (
     <div>
-      {names}
+      {persons.map(person => <div> 
+        <Person key={person.name} person={person} handleDeleteClick={handleDeleteClick} />
+      </div>)}
     </div>
   )
 }
