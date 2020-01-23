@@ -17,6 +17,18 @@ const Notification = ({ message }) => {
   )
 }
 
+const Error = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className="error">
+      {message}
+    </div>
+  )
+}
+
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -24,6 +36,7 @@ const App = () => {
   const [ filterInput, setFilterInput ] = useState('')
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
+  const [ notificationMessage, setNotificationMessage ] = useState(null)
   const [ errorMessage, setErrorMessage ] = useState(null)
 
   const getPersonsFromApi = () => {
@@ -60,9 +73,9 @@ const App = () => {
         getPersonsFromApi()
       }).catch(error => getPersonsFromApi())
 
-      setErrorMessage(`Removed ${person.name}`)
+      setNotificationMessage(`Removed ${person.name}`)
       setTimeout(() => {
-        setErrorMessage(null)
+        setNotificationMessage(null)
       }, 3000)
   }
 
@@ -80,20 +93,27 @@ const App = () => {
           number: newNumber,
           id: persons.filter(p => p.name === nameObject.name)[0].id,
         }
-        setErrorMessage(`Updated ${nameObject.name}`)
         setNewName('')
         setNewNumber('')
         NameServices
           .updateName(updatedPerson)
-          .then(response => getPersonsFromApi())
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 3000)
+          .then(response => {
+            getPersonsFromApi()
+            setNotificationMessage(`Updated ${updatedPerson.name}`)
+            setTimeout(() => {
+              setNotificationMessage(null)
+            }, 3000)
+          })
+          .catch(error => {
+            setErrorMessage(`${updatedPerson.name} has already been removed.`)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 3000)
+          })
         return
       }
     }
     setPersons(persons.concat(nameObject))
-    setErrorMessage(`Added ${nameObject.name}`)
     setNewName('')
     setNewNumber('')
 
@@ -102,8 +122,9 @@ const App = () => {
       .then(response => {
         getPersonsFromApi()
       })
+    setNotificationMessage(`Added ${nameObject.name}`)
     setTimeout(() => {
-      setErrorMessage(null)
+      setNotificationMessage(null)
     }, 3000)
   }
 
@@ -113,7 +134,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
-      <Notification message={errorMessage} />
+      <Notification message={notificationMessage} />
+      <Error message={errorMessage} />
 
       <Filter filterInput={filterInput} handleFilterInputChange={handleFilterInputChange} />
       <h2>Add a new</h2>
