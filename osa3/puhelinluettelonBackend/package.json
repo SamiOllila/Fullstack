@@ -1,0 +1,19 @@
+{
+  "name": "puhelinluettelonbackend",
+  "version": "1.0.0",
+  "description": "Consists of Fullstack course part 3 excercises.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "watch": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sami Ollila",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
