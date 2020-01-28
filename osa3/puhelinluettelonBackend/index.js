@@ -56,6 +56,24 @@ app.delete(`/api/persons/:id`, (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const person = req.body
+  if (Object.keys(person).length > 2) {
+    res.status(400).json({
+      error: 'Only name and number information is accepted.'
+    })
+    return
+  }
+  if (!person.name || !person.number) {
+    res.status(400).json({
+      error: 'Name or number missing.'
+    })
+    return
+  }
+  if (persons.map(person => person.name).includes(person.name)) {
+    res.status(400).json({
+      error: 'Name must be unique.'
+    })
+    return
+  }
   newPerson = {
     name: person.name,
     number: person.number,
