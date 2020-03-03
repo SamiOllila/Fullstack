@@ -90,19 +90,26 @@ const App = () => {
         return
       }
     }
-    setPersons(persons.concat(nameObject))
-    setNewName('')
-    setNewNumber('')
 
     NameServices
       .addName(nameObject)
       .then(response => {
         getPersonsFromApi()
+        setNotificationMessage(`Added ${nameObject.name}`)
+        setPersons(persons.concat(nameObject))
+        setNewName('')
+        setNewNumber('')
+        setTimeout(() => {
+          setNotificationMessage(null)
+        }, 3000)
       })
-    setNotificationMessage(`Added ${nameObject.name}`)
-    setTimeout(() => {
-      setNotificationMessage(null)
-    }, 3000)
+      .catch(error => {
+        setErrorMessage(`${String(error.response.data.error)}`)
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        return
+      })
   }
 
   const filteredPersons = persons.filter(person => person.name.toUpperCase().includes(filterInput.toUpperCase()))
