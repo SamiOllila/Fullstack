@@ -1,3 +1,4 @@
+require('dotenv').config()
 const http = require('http')
 const express = require('express')
 const app = express()
@@ -11,9 +12,18 @@ const blogSchema = mongoose.Schema({
   likes: Number
 })
 
+blogSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
 const Blog = mongoose.model('Blog', blogSchema)
 
-const mongoUrl = 'mongodb://localhost/bloglist'
+const mongoUrl = process.env.MONGODB_URI
+console.log(mongoUrl)
 mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true})
 
 app.use(cors())
