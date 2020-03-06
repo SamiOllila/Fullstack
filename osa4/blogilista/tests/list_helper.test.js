@@ -48,3 +48,10 @@ describe('favorite blog', () => {
     expect(result).toEqual({ _id: "5a422b3a1b54a676234d17f9", title: "Canonical string reduction", author: "Edsger W. Dijkstra", url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html", likes: 12, __v: 0 })
   })
 })
+
+describe('most blogs', () => {
+  test('Author with most blogs in total', () => {
+    const result = listHelper.mostBlogs(blogs)
+    expect(result).toEqual({author: "Robert C. Martin", blogs: 3})
+  })
+})
