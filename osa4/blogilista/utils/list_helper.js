@@ -20,7 +20,7 @@ const favoriteBlog = (blogs) => {
     }
     return acc
   }
-  return blogs.reduce(hasMoreLikes, blogs[1])
+  return blogs.reduce(hasMoreLikes, blogs[0])
 }
 
 const mostBlogs = (blogs) => {
@@ -43,14 +43,14 @@ const mostBlogs = (blogs) => {
     return authorBlogs.length
   }
 
-const authorWithBlog = (acc, cur) => {
-  authorObj = {
-    author: cur,
-    blogs: countAuthorBlogs(blogs, cur)
+  const authorWithBlog = (acc, cur) => {
+    authorObj = {
+      author: cur,
+      blogs: countAuthorBlogs(blogs, cur)
+    }
+    acc.push(authorObj)
+    return acc
   }
-  acc.push(authorObj)
-  return acc
-}
   const authorsWithBlogs = authors.reduce(authorWithBlog, [])
   const hasMoreBlogs = (acc, cur) => {
     if (acc.blogs > cur.blogs) {
@@ -61,10 +61,42 @@ const authorWithBlog = (acc, cur) => {
   return authorsWithBlogs.reduce(hasMoreBlogs, authorsWithBlogs[0])
 }
 
+const mostLikes = (blogs) => {
+  if (!blogs) {
+    return {}
+  }
+  const getAuthors = (blogs) => {
+    const getAuthor = (acc, cur) => {
+      if (!acc.includes(cur.author)) {
+        acc.push(cur.author)
+        return acc
+      }
+      return acc
+    }
+    return blogs.reduce(getAuthor, [ blogs[0].author ])
+  }
+  const authors = getAuthors(blogs)
+  const countAuthorLikes = (blogs, author) => {
+    const authorBlogs = blogs.filter(blog => blog.author === author)
+    return totalLikes(authorBlogs)
+  }
+  const authorWithLikes = (acc, cur) => {
+    authorObj = {
+      author: cur,
+      likes: countAuthorLikes(blogs, cur)
+    }
+    acc.push(authorObj)
+    return acc
+  }
+  const authorsWithLikes = authors.reduce(authorWithLikes, [])
+  return favoriteBlog(authorsWithLikes)
+}
+
 
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
