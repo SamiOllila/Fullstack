@@ -84,6 +84,16 @@ test('new blog is added with POST', async () => {
   expect(theAddedBlog[0].title).toBe(newBlog.title)
 })
 
+test('likes is 0 by default if no value is given', async () => {
+  const AnotherNewBlog = {
+    title: "new blog",
+    author: "new author",
+    url: "www.newBlog.com"
+  }
+  blogObject = new Blog(AnotherNewBlog)
+  expect(blogObject.likes).toBe(0)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
