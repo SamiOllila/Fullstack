@@ -4,21 +4,23 @@
   "description": "Fullstack course round 4 excercise application.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "watch": "nodemon index.js",
-    "test": "jest --verbose"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=developement nodemon index.js",
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand"
   },
   "author": "Sami Ollila",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mongoose": "^5.9.3"
   },
   "devDependencies": {
     "jest": "^25.1.0",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "supertest": "^4.0.2"
   },
   "jest": {
     "testEnvironment": "node"
