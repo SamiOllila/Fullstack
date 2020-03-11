@@ -107,6 +107,18 @@ test('blogs with no title or url are not accepted', async () => {
     .expect(400)
 })
 
+test('DELETE removes a correct blog', async () => {
+  const response = await api.get('/api/blogs')
+  const blogToRemove = response.body[0]
+
+  await api
+    .delete(`/api/blogs/${blogToRemove.id}`)
+    .expect(200)
+  
+  const result = await api.get('/api/blogs')
+  expect(result.body.filter(blog => blog.id === blogToRemove.id)).toStrictEqual([])
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
