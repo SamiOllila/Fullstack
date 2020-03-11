@@ -69,6 +69,21 @@ test('blogs have id field', async () => {
   });
 })
 
+test('new blog is added with POST', async () => {
+  const newBlog = {
+    title: "new blog",
+    author: "new author",
+    url: "www.newBlog.com",
+    likes: 1
+  }
+  blogObject = new Blog(newBlog)
+  await blogObject.save()
+
+  const response = await api.get('/api/blogs')
+  const theAddedBlog = response.body.filter(blog => blog.title === newBlog.title && blog.author === newBlog.author && blog.url === newBlog.url && blog.likes === newBlog.likes)
+  expect(theAddedBlog[0].title).toBe(newBlog.title)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
