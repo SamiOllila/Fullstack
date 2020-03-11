@@ -119,6 +119,20 @@ test('DELETE removes a correct blog', async () => {
   expect(result.body.filter(blog => blog.id === blogToRemove.id)).toStrictEqual([])
 })
 
+test('PUT updates a correct blog', async () => {
+  const response = await api.get('/api/blogs')
+  let blogToUpdate = response.body[0]
+  blogToUpdate.likes = 50
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(blogToUpdate)
+    .expect(200)
+
+  const result = await api.get('/api/blogs')
+  expect(result.body.filter(blog => blog.id === blogToUpdate.id)[0].likes).toBe(50)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
