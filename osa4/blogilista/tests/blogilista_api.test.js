@@ -76,8 +76,10 @@ test('new blog is added with POST', async () => {
     url: "www.newBlog.com",
     likes: 1
   }
-  blogObject = new Blog(newBlog)
-  await blogObject.save()
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
 
   const response = await api.get('/api/blogs')
   const theAddedBlog = response.body.filter(blog => blog.title === newBlog.title && blog.author === newBlog.author && blog.url === newBlog.url && blog.likes === newBlog.likes)
@@ -92,6 +94,17 @@ test('likes is 0 by default if no value is given', async () => {
   }
   blogObject = new Blog(AnotherNewBlog)
   expect(blogObject.likes).toBe(0)
+})
+
+test('blogs with no title or url are not accepted', async () => {
+  const notValidBlog = {
+    author: "new author",
+    likes: 4
+  }
+  await api
+    .post('/api/blogs')
+    .send(notValidBlog)
+    .expect(400)
 })
 
 afterAll(() => {
