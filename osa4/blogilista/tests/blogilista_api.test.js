@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const testhelper = require('../utils/test_helper')
 
 const api = supertest(app)
 
@@ -32,106 +35,155 @@ const initialBlogs = [
   },
 ]
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
+describe('Blog tests', () => {
 
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
-
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
-
-  blogObject = new Blog(initialBlogs[2])
-  await blogObject.save()
-
-  blogObject = new Blog(initialBlogs[3])
-  await blogObject.save()
-})
-
-
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
-
-test('correct number of blogs is returned', async () => {
-  const response = await api.get('/api/blogs')
-
-  expect(response.body.length).toBe(4)
-})
-
-test('blogs have id field', async () => {
-  const response = await api.get('/api/blogs')
-  response.body.forEach(element => {
-    expect(element.id).toBeDefined()
-  });
-})
-
-test('new blog is added with POST', async () => {
-  const newBlog = {
-    title: "new blog",
-    author: "new author",
-    url: "www.newBlog.com",
-    likes: 1
-  }
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-
-  const response = await api.get('/api/blogs')
-  const theAddedBlog = response.body.filter(blog => blog.title === newBlog.title && blog.author === newBlog.author && blog.url === newBlog.url && blog.likes === newBlog.likes)
-  expect(theAddedBlog[0].title).toBe(newBlog.title)
-})
-
-test('likes is 0 by default if no value is given', async () => {
-  const AnotherNewBlog = {
-    title: "new blog",
-    author: "new author",
-    url: "www.newBlog.com"
-  }
-  blogObject = new Blog(AnotherNewBlog)
-  expect(blogObject.likes).toBe(0)
-})
-
-test('blogs with no title or url are not accepted', async () => {
-  const notValidBlog = {
-    author: "new author",
-    likes: 4
-  }
-  await api
-    .post('/api/blogs')
-    .send(notValidBlog)
-    .expect(400)
-})
-
-test('DELETE removes a correct blog', async () => {
-  const response = await api.get('/api/blogs')
-  const blogToRemove = response.body[0]
-
-  await api
-    .delete(`/api/blogs/${blogToRemove.id}`)
-    .expect(200)
+  beforeEach(async () => {
+    await Blog.deleteMany({})
   
-  const result = await api.get('/api/blogs')
-  expect(result.body.filter(blog => blog.id === blogToRemove.id)).toStrictEqual([])
+    let blogObject = new Blog(initialBlogs[0])
+    await blogObject.save()
+  
+    blogObject = new Blog(initialBlogs[1])
+    await blogObject.save()
+  
+    blogObject = new Blog(initialBlogs[2])
+    await blogObject.save()
+  
+    blogObject = new Blog(initialBlogs[3])
+    await blogObject.save()
+  })
+
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('correct number of blogs is returned', async () => {
+    const response = await api.get('/api/blogs')
+
+    expect(response.body.length).toBe(4)
+  })
+
+  test('blogs have id field', async () => {
+    const response = await api.get('/api/blogs')
+    response.body.forEach(element => {
+      expect(element.id).toBeDefined()
+    });
+  })
+
+  test('new blog is added with POST', async () => {
+    const newBlog = {
+      title: "new blog",
+      author: "new author",
+      url: "www.newBlog.com",
+      likes: 1
+    }
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+
+    const response = await api.get('/api/blogs')
+    const theAddedBlog = response.body.filter(blog => blog.title === newBlog.title && blog.author === newBlog.author && blog.url === newBlog.url && blog.likes === newBlog.likes)
+    expect(theAddedBlog[0].title).toBe(newBlog.title)
+  })
+
+  test('likes is 0 by default if no value is given', async () => {
+    const AnotherNewBlog = {
+      title: "new blog",
+      author: "new author",
+      url: "www.newBlog.com"
+    }
+    blogObject = new Blog(AnotherNewBlog)
+    expect(blogObject.likes).toBe(0)
+  })
+
+  test('blogs with no title or url are not accepted', async () => {
+    const notValidBlog = {
+      author: "new author",
+      likes: 4
+    }
+    await api
+      .post('/api/blogs')
+      .send(notValidBlog)
+      .expect(400)
+  })
+
+  test('DELETE removes a correct blog', async () => {
+    const response = await api.get('/api/blogs')
+    const blogToRemove = response.body[0]
+
+    await api
+      .delete(`/api/blogs/${blogToRemove.id}`)
+      .expect(200)
+    
+    const result = await api.get('/api/blogs')
+    expect(result.body.filter(blog => blog.id === blogToRemove.id)).toStrictEqual([])
+  })
+
+  test('PUT updates a correct blog', async () => {
+    const response = await api.get('/api/blogs')
+    let blogToUpdate = response.body[0]
+    blogToUpdate.likes = 50
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(blogToUpdate)
+      .expect(200)
+
+    const result = await api.get('/api/blogs')
+    expect(result.body.filter(blog => blog.id === blogToUpdate.id)[0].likes).toBe(50)
+  })
 })
 
-test('PUT updates a correct blog', async () => {
-  const response = await api.get('/api/blogs')
-  let blogToUpdate = response.body[0]
-  blogToUpdate.likes = 50
+describe('User tests', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
 
-  await api
-    .put(`/api/blogs/${blogToUpdate.id}`)
-    .send(blogToUpdate)
-    .expect(200)
+    const passwordHash1 = await bcrypt.hash('sekret1', 10)
+    const passwordHash2 = await bcrypt.hash('sekret2', 10)
 
-  const result = await api.get('/api/blogs')
-  expect(result.body.filter(blog => blog.id === blogToUpdate.id)[0].likes).toBe(50)
+    let userObject = new User({ username: 'username1', name: 'name1', passwordHash1 })
+    await userObject.save()
+  
+    userObject = new User({ username: 'username2', name: 'name2', passwordHash2 })
+    await userObject.save()
+
+  })
+
+  test('users are returned as json', async () => {
+    await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+  test('correct number of users is returned', async () => {
+    const response = await api.get('/api/users')
+
+    expect(response.body.length).toBe(2)
+  })
+
+  test('POST adds the new user', async () => {
+    const newUser = {
+      username: "newUserName",
+      name: "newUser",
+      password: "newSecret"
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersInDb = await User.find({})
+    expect(usersInDb.map(user => user.username).filter(name => name === newUser.username)[0]).toBe(newUser.username)
+  })
 })
+
 
 afterAll(() => {
   mongoose.connection.close()

@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const logger = require('./utils/logger')
 const { MONGODB_URI, PORT } = require('./utils/config')
 const blogsRouter = require('./controllers/blogs')
+const usersRouter = require('./controllers/users')
 
 const mongoUrl = MONGODB_URI
 logger.info(`Connecting to MongoDB...`)
@@ -19,5 +20,6 @@ mongoose.connect(mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true})
 app.use(cors())
 app.use(express.json())
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', usersRouter)
 
 module.exports = app
