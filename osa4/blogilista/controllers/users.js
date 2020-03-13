@@ -9,7 +9,10 @@ usersRouter.get('/', async (request, response) => {
 
 usersRouter.post('/', async (request, response) => {
   const body = request.body
-
+  
+  if (body.password.length < 3 || body.username.length < 3) {
+    return response.status(400).json({error: 'Password and username must be at least 3 characters long'})
+  }
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
@@ -18,10 +21,12 @@ usersRouter.post('/', async (request, response) => {
     name: body.name,
     passwordHash,
   })
-
-  const savedUser = await user.save()
-
-  response.status(201).json(savedUser)
+  try{
+    const savedUser = await user.save()
+    response.status(201).json(savedUser)
+  } catch(exception) {
+    return response.status(400).json({error: 'username is already taken'})
+  }
 })
 
 module.exports = usersRouter

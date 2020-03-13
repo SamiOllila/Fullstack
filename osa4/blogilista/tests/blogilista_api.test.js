@@ -182,6 +182,47 @@ describe('User tests', () => {
     const usersInDb = await User.find({})
     expect(usersInDb.map(user => user.username).filter(name => name === newUser.username)[0]).toBe(newUser.username)
   })
+
+  test('usernames and passwords with less than 3 characters are rejected', async () => {
+    const tooShortUsername = {
+      username: "a",
+      name: "newUser",
+      password: "newSecret"
+    }
+
+    await api
+    .post('/api/users')
+    .send(tooShortUsername)
+    .expect(400)
+
+    const tooShortPassword = {
+      username: "shortpassword",
+      name: "newUser",
+      password: "a"
+    }
+    
+    await api
+    .post('/api/users')
+    .send(tooShortPassword)
+    .expect(400)
+  })
+
+  test('username must be unique', async () => {
+    const newUser = {
+      username: "newUserName",
+      name: "newUser",
+      password: "newSecret"
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+    
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+  })
 })
 
 
