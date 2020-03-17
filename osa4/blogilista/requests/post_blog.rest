@@ -1,9 +1,10 @@
 POST  http://localhost:3003/api/blogs
 Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlNvbWVvbmUzIiwiaWQiOiI1ZTcwYWViNmJkY2UyYTI2ZjQ2MGRlMDMiLCJpYXQiOjE1ODQ0NDc0ODJ9.Kgy6rnGp9Qwg83FYn3epFHnzCfimE7AbuzP-JnJ9FAE
 
 {
-  "title": "MoreForMattiAgain",
-  "author": "angryDev2",
-  "url": "www.thisNoGood2.com",
-  "likes": 5
+  "title": "MoreForMattiWithTokens",
+  "author": "tokentoken",
+  "url": "www.tokensAreWeird.com",
+  "likes": 3
 }
