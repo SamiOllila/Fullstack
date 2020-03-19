@@ -38,6 +38,8 @@ const initialBlogs = [
 describe('Blog tests', () => {
 
   beforeEach(async () => {
+    await User.deleteMany({})
+
     await Blog.deleteMany({})
   
     let blogObject = new Blog(initialBlogs[0])
@@ -73,7 +75,35 @@ describe('Blog tests', () => {
     });
   })
 
-  test('new blog is added with POST', async () => {
+  test('new blog is added with POST if correct token is present', async () => {
+    const newBlog = {
+      title: "new blog",
+      author: "new author",
+      url: "www.newBlog.com",
+      likes: 1
+    }
+    const passwordHash = await bcrypt.hash('sekret1', 10)
+    const user = new User({ username: 'username1', name: 'name1', passwordHash })
+    await user.save()
+
+    const result = await api
+      .post('/api/login')
+      .send({ username: user.username, password: 'sekret1'})
+
+    const loginToken = result.body.token
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set({ Authorization: `bearer ${loginToken}` })
+      .expect(201)
+
+    const response = await api.get('/api/blogs')
+    const theAddedBlog = response.body.filter(blog => blog.title === newBlog.title && blog.author === newBlog.author && blog.url === newBlog.url && blog.likes === newBlog.likes)
+    expect(theAddedBlog[0].title).toBe(newBlog.title)
+  })
+
+  test('new blog is not added if there is no token', async () => {
     const newBlog = {
       title: "new blog",
       author: "new author",
@@ -83,11 +113,17 @@ describe('Blog tests', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
-      .expect(201)
+      .set({ Authorization: `bearer asdadsadsadasdda` })
+      .expect(401)
+  })
 
-    const response = await api.get('/api/blogs')
-    const theAddedBlog = response.body.filter(blog => blog.title === newBlog.title && blog.author === newBlog.author && blog.url === newBlog.url && blog.likes === newBlog.likes)
-    expect(theAddedBlog[0].title).toBe(newBlog.title)
+  test('new blog is not added if token is invalid', async () => {
+    const newBlog = {
+      title: "new blog",
+      author: "new author",
+      url: "www.newBlog.com",
+      likes: 1
+    }
   })
 
   test('likes is 0 by default if no value is given', async () => {
@@ -112,15 +148,38 @@ describe('Blog tests', () => {
   })
 
   test('DELETE removes a correct blog', async () => {
-    const response = await api.get('/api/blogs')
-    const blogToRemove = response.body[0]
+    const newBlog = {
+      title: "new blog",
+      author: "new author",
+      url: "www.newBlog.com",
+      likes: 1
+    }
+    const passwordHash = await bcrypt.hash('sekret1', 10)
+    const user = new User({ username: 'username1', name: 'name1', passwordHash })
+    await user.save()
+
+    const result = await api
+      .post('/api/login')
+      .send({ username: user.username, password: 'sekret1'})
+
+    const loginToken = result.body.token
 
     await api
-      .delete(`/api/blogs/${blogToRemove.id}`)
+      .post('/api/blogs')
+      .send(newBlog)
+      .set({ Authorization: `bearer ${loginToken}` })
+      .expect(201)
+
+    const response = await api.get('/api/blogs')
+    const blogToRemove = response.body.filter(blog => blog.title === newBlog.title)
+
+    await api
+      .delete(`/api/blogs/${blogToRemove[0].id}`)
+      .set({ Authorization: `bearer ${loginToken}` })
       .expect(200)
     
-    const result = await api.get('/api/blogs')
-    expect(result.body.filter(blog => blog.id === blogToRemove.id)).toStrictEqual([])
+    const blogsFromDb = await api.get('/api/blogs')
+    expect(blogsFromDb.body.filter(blog => blog.id === blogToRemove[0].id)).toStrictEqual([])
   })
 
   test('PUT updates a correct blog', async () => {
